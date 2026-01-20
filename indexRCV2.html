@@ -311,7 +311,24 @@
 
 <div class="row" style="margin-top:12px;">
   <div>
+    <div class="row" style="margin-top:12px;">
+  <div>
     <label for="custZip">ZIP</label>
+    <input id="custZip" type="text" placeholder="59101">
+  </div>
+
+  <div style="display:flex; align-items:flex-end;">
+    <button
+      type="button"
+      class="btn primary"
+      id="btnCreateLead"
+      style="width:100%;"
+    >
+      Create Lead
+    </button>
+  </div>
+</div>
+
     <input id="custZip" type="text" placeholder="59101">
   </div>
 </div>
@@ -787,7 +804,7 @@
               <div class="btns">
                 <button class="btn" id="btnReset">Reset defaults</button>
                 <button class="btn primary" id="btnCopy">Copy payload (JSON)</button>
-				  <button class="btn primary" id="btnCreateLead">Create Lead</button>
+				
 
               </div>
 
@@ -1550,20 +1567,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 });
 	
 
-    // show preview
-    $("payloadBox").style.display = "block";
-    $("payloadBox").textContent = payload;
-
-    // copy to clipboard
-    try{
-      await navigator.clipboard.writeText(payload);
-      $("stdBadge").textContent = "Payload copied";
-      setTimeout(()=> $("stdBadge").textContent = "Editable standards", 1200);
-    }catch(e){
-      $("stdBadge").textContent = "Copy failed (browser)";
-      setTimeout(()=> $("stdBadge").textContent = "Editable standards", 1600);
-    }
-  });
+   
 
 
   // Init
@@ -1573,3 +1577,4 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
