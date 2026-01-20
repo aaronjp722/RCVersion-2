@@ -787,6 +787,8 @@
               <div class="btns">
                 <button class="btn" id="btnReset">Reset defaults</button>
                 <button class="btn primary" id="btnCopy">Copy payload (JSON)</button>
+				  <button class="btn primary" id="btnCreateLead">Create Lead</button>
+
               </div>
 
               <div class="note">
@@ -1482,9 +1484,71 @@ moveFurniture, intWindows, customAdder,
 
   $("btnReset").addEventListener("click", setDefaults);
 
-  $("btnCopy").addEventListener("click", async ()=>{
-    const calc = compute();
-    const payload = JSON.stringify(buildPayload(calc), null, 2);
+ // COPY PAYLOAD BUTTON
+$("btnCopy").addEventListener("click", async () => {
+  const calc = compute();
+  const payload = JSON.stringify(buildPayload(calc), null, 2);
+
+  $("payloadBox").style.display = "block";
+  $("payloadBox").textContent = payload;
+
+  try {
+    await navigator.clipboard.writeText(payload);
+    $("stdBadge").textContent = "Payload copied";
+    setTimeout(()=> $("stdBadge").textContent = "Editable standards", 1200);
+  } catch (e) {
+    $("stdBadge").textContent = "Copy failed";
+    setTimeout(()=> $("stdBadge").textContent = "Editable standards", 1600);
+  }
+});
+
+// CREATE LEAD BUTTON
+$("btnCreateLead").addEventListener("click", async () => {
+  const calc = compute();
+
+  // Guardrail
+  if (!calc.inputs.customer.first_name || !calc.inputs.customer.phone) {
+    alert("Customer first name and phone are required to create a lead.");
+    return;
+  }
+
+  const payload = {
+    event: "create_lead",
+    source: "residential_calculator",
+    created_at: new Date().toISOString(),
+
+    customer: calc.inputs.customer,
+
+    quote: {
+      price: calc.outputs.rawPrice,
+      labor_hours: calc.outputs.totalLaborHours,
+      duration_hours: calc.outputs.durationHours,
+      service_type: calc.inputs.serviceType,
+      sqft: calc.inputs.sqft
+    },
+
+    calculator_payload: calc
+  };
+
+  try {
+    const res = await fetch(
+      "https://hook.us1.make.com/c4bcv8ak2m7udipjmfphd2p1uo8j6vln",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!res.ok) throw new Error("Webhook failed");
+
+    alert("Lead successfully created.");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to create lead. Check Make.com logs.");
+  }
+});
+	
 
     // show preview
     $("payloadBox").style.display = "block";
@@ -1507,4 +1571,5 @@ moveFurniture, intWindows, customAdder,
 })();
 </script>
 </body>
+
 </html>
