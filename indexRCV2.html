@@ -802,6 +802,47 @@
               <div class="btns">
                 <button class="btn" id="btnReset">Reset defaults</button>
                 <button class="btn primary" id="btnCopy">Copy payload (JSON)</button>
+				  <div class="sectionTitle">Proposed Booking</div>
+
+<div class="row" style="margin-top:12px;">
+  <div>
+    <label for="bookingDate">Booking date</label>
+    <input id="bookingDate" type="date">
+  </div>
+
+  <div>
+    <label for="bookingTime">Booking time</label>
+    <input id="bookingTime" type="time">
+  </div>
+</div>
+
+<div class="row" style="margin-top:12px;">
+  <div>
+    <label for="bookingTimezone">Time zone</label>
+    <select id="bookingTimezone">
+      <option value="">Select time zone</option>
+      <option value="America/Denver">Mountain (MT)</option>
+      <option value="America/Chicago">Central (CT)</option>
+      <option value="America/New_York">Eastern (ET)</option>
+      <option value="America/Los_Angeles">Pacific (PT)</option>
+    </select>
+  </div>
+</div>
+
+
+				  
+				  <div style="margin-top:10px;">
+  <button
+    type="button"
+    class="btn"
+    id="btnSendQuote"
+    style="width:100%;"
+  >
+    Send Quote
+  </button>
+</div>
+
+
 				
 
               </div>
@@ -1517,10 +1558,75 @@ $("btnCopy").addEventListener("click", async () => {
   }
 });
 
+// SEND QUOTE BUTTON
+$("btnSendQuote").addEventListener("click", async () => {
+  const calc = compute();
+
+  // Guardrails
+  if (!calc.inputs.customer.email && !calc.inputs.customer.phone) {
+    alert("Email or phone is required to send a quote.");
+    return;
+  }
+
+  const bookingDate = $("bookingDate").value;
+  const bookingTime = $("bookingTime").value;
+  const bookingTimezone = $("bookingTimezone").value;
+
+  if (!bookingDate || !bookingTime || !bookingTimezone) {
+    alert("Please select booking date, time, and time zone.");
+    return;
+  }
+
+  const payload = {
+    event: "send_quote",
+    source: "residential_calculator",
+    sent_at: new Date().toISOString(),
+
+    customer: calc.inputs.customer,
+
+    booking: {
+      date: bookingDate,
+      time: bookingTime,
+      timezone: bookingTimezone
+    },
+
+    quote: {
+      price: calc.outputs.rawPrice,
+      labor_hours: calc.outputs.totalLaborHours,
+      duration_hours: calc.outputs.durationHours,
+      service_type: calc.inputs.serviceType,
+      sqft: calc.inputs.sqft
+    },
+
+    calculator_payload: calc
+  };
+
+  try {
+    const res = await fetch(
+      "https://hook.us1.make.com/swiqj9f9hkyk6yk86lbj6we79t47f2em",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (!res.ok) throw new Error("Webhook failed");
+
+    alert("Quote sent successfully.");
+  } catch (err) {
+    console.error(err);
+    alert("Failed to send quote. Check Make.com logs.");
+  }
+});
+	
 // CREATE LEAD BUTTON
 $("btnCreateLead").addEventListener("click", async () => {
   const calc = compute();
 
+
+
+	
   // Guardrail
   if (!calc.inputs.customer.first_name || !calc.inputs.customer.phone) {
     alert("Customer first name and phone are required to create a lead.");
@@ -1575,5 +1681,6 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
