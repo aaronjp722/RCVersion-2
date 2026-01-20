@@ -1,0 +1,1510 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Residential Cleaning Calculator (ISSA-Aligned)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b1220;
+      --card:#111827;
+      --card2:#0f172a;
+      --border:rgba(255,255,255,.12);
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --accent:#f97316;
+      --good:#22c55e;
+      --bad:#ef4444;
+      --warn:#eab308;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      background:radial-gradient(1200px 700px at 20% 0%, rgba(249,115,22,.18), transparent 60%),
+                 radial-gradient(900px 600px at 80% 20%, rgba(56,189,248,.12), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:28px 18px 40px}
+    .top{
+      display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+    h1{margin:0;font-size:clamp(22px,3vw,34px);font-weight:900;line-height:1.05}
+    .sub{color:var(--muted);max-width:780px;font-size:14px;line-height:1.55;margin-top:8px}
+    .pill{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+      padding:10px 12px;
+      border-radius:999px;
+      display:flex;gap:10px;align-items:center;
+    }
+    .pill b{color:var(--text)}
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:16px;
+    }
+    @media (max-width: 980px){
+      .grid{grid-template-columns:1fr}
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      overflow:hidden;
+      box-shadow:0 18px 40px rgba(0,0,0,.35);
+    }
+    .cardHead{
+      padding:14px 16px;
+      border-bottom:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      background:rgba(255,255,255,.02);
+    }
+    .cardHead h2{margin:0;font-size:14px;font-weight:900;letter-spacing:.02em;text-transform:uppercase;color:#cbd5e1}
+    .cardBody{padding:16px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 620px){ .row{grid-template-columns:1fr} }
+
+    label{display:block;font-size:12px;color:#cbd5e1;margin:0 0 6px;font-weight:700}
+    input, select{
+      width:100%;
+      padding:12px 12px;
+      background:rgba(17,24,39,.7);
+      border:1px solid var(--border);
+      border-radius:12px;
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+    input::placeholder{color:#6b7280}
+    .hint{font-size:12px;color:var(--muted);line-height:1.35;margin-top:6px}
+    .sectionTitle{
+      margin:20px 0 10px;
+      font-size:12px;
+      color:#f97316;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      font-weight:900;
+      display:flex;align-items:center;gap:10px;
+    }
+    .sectionTitle:after{
+      content:"";
+      height:1px;flex:1;background:rgba(255,255,255,.10);
+    }
+
+    /* Updated Checkbox Styling to match User Request + Theme */
+    .checks{display:grid;grid-template-columns:1fr;gap:8px} /* Single column for list view */
+    .task-label{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 12px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:rgba(255,255,255,.03);
+      cursor:pointer;
+      transition:background 0.2s;
+    }
+    .task-label:hover{background:rgba(255,255,255,.06);}
+    .task-label input{
+      width:18px;height:18px;margin:0;
+      accent-color: var(--accent);
+      cursor:pointer;
+    }
+    .task-label span {
+        font-size: 13px; font-weight: 600; color: #e2e8f0;
+    }
+    .task-group { margin-bottom: 15px; }
+    .task-group h4 { margin: 0 0 8px 0; font-size: 11px; text-transform:uppercase; color: var(--muted); letter-spacing: 0.05em; }
+
+    .inline3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    @media (max-width: 860px){ .inline3{grid-template-columns:1fr} }
+
+    .results{
+      display:grid;gap:12px;
+    }
+    .kpi{
+      padding:14px 14px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:linear-gradient(180deg, rgba(249,115,22,.12), rgba(255,255,255,.02));
+    }
+    .kpi .big{
+      font-size:30px;
+      font-weight:900;
+      letter-spacing:-.02em;
+      margin:0;
+      line-height:1.05;
+    }
+    .kpi .lbl{
+      color:#cbd5e1;
+      font-weight:800;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      margin-top:8px;
+    }
+
+    .panel{
+      padding:14px 14px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      background:rgba(255,255,255,.03);
+    }
+    .panel h3{margin:0 0 10px;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;color:#cbd5e1}
+    .line{display:flex;justify-content:space-between;gap:14px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+    .line:last-child{border-bottom:none}
+    .line .l{color:#cbd5e1;font-size:13px;font-weight:700}
+    .line .r{color:var(--text);font-size:13px;font-weight:900;text-align:right}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:700;
+    }
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .btn{
+      border-radius:12px;
+      padding:12px 14px;
+      font-weight:900;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn.primary{
+      background:var(--accent);
+      border-color:rgba(249,115,22,.6);
+      box-shadow:0 12px 28px rgba(249,115,22,.25);
+      color:#0b1220;
+    }
+    .btn:active{transform:translateY(1px)}
+    .note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+      margin-top:10px;
+    }
+    .warn{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:12px;
+      border:1px solid rgba(234,179,8,.35);
+      background:rgba(234,179,8,.08);
+      color:#fde68a;
+      font-size:12px;
+      line-height:1.35;
+      display:none;
+    }
+    .warn.show{display:block}
+    .smallMono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;color:#cbd5e1;
+      background:rgba(0,0,0,.25);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:10px 12px;
+      overflow:auto;
+      white-space:pre;
+      max-height:240px;
+    }
+    /* Specific styles for dynamic rows */
+    .extraRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+    }
+    @media (max-width: 620px){ 
+        .extraRow{grid-template-columns:1fr 1fr auto} 
+    }
+    .delBtn {
+        color: var(--bad);
+        background: rgba(239,68,68,0.1);
+        border: 1px solid rgba(239,68,68,0.2);
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        display:flex;
+        align-items:center;justify-content:center;
+    }
+    .delBtn:hover { background: rgba(239,68,68,0.2); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Residential Cleaning Calculator</h1>
+        <div class="sub">
+          ISSA-aligned production rates. Adjust inputs to estimate price. "Deep Clean" selection automatically populates the required tasks below.
+        </div>
+      </div>
+      <div class="pill">
+        <span>Baseline:</span> <b id="pillBaseline">1,200 sq ft / labor hr</b>
+        <span style="opacity:.5">•</span>
+        <span>Min:</span> <b id="pillMin">2.5 labor hrs</b>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="cardHead">
+          <h2>Inputs</h2>
+          <span class="badge" id="scopeBadge">Scope locked by calculator</span>
+        </div>
+        <div class="cardBody">
+<div class="sectionTitle">Customer Information</div>
+
+<div class="row">
+  <div>
+    <label for="custFirst">First name</label>
+    <input id="custFirst" type="text" placeholder="John">
+  </div>
+  <div>
+    <label for="custLast">Last name</label>
+    <input id="custLast" type="text" placeholder="Doe">
+  </div>
+</div>
+
+<div class="row" style="margin-top:12px;">
+  <div>
+    <label for="custEmail">Email</label>
+    <input id="custEmail" type="email" placeholder="john@email.com">
+  </div>
+  <div>
+    <label for="custPhone">Phone</label>
+    <input id="custPhone" type="tel" placeholder="(555) 555-5555">
+  </div>
+</div>
+
+<div class="row" style="margin-top:12px;">
+  <div style="grid-column:1 / -1">
+    <label for="custAddress">Service address</label>
+    <input id="custAddress" type="text" placeholder="123 Main St">
+  </div>
+</div>
+
+<div class="row" style="margin-top:12px;">
+  <div>
+    <label for="custCity">City</label>
+    <input id="custCity" type="text" placeholder="Billings">
+  </div>
+  <div>
+    <label for="custState">State</label>
+    <input id="custState" type="text" placeholder="MT">
+  </div>
+</div>
+
+<div class="row" style="margin-top:12px;">
+  <div>
+    <label for="custZip">ZIP</label>
+    <input id="custZip" type="text" placeholder="59101">
+  </div>
+</div>
+
+          <div class="row">
+            <div>
+              <label for="sqft">Home square footage</label>
+              <input id="sqft" type="number" min="200" step="10" value="1400" />
+              <div class="hint">Used for base labor hours (sq ft ÷ baseline rate).</div>
+            </div>
+            <div>
+              <label for="cleaners">Cleaners on job</label>
+              <input id="cleaners" type="number" min="1" step="1" value="1" />
+              <div class="hint">Impacts estimated on-site duration (labor hours ÷ cleaners).</div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="serviceType">Service type</label>
+              <select id="serviceType">
+                <option value="maintenance" selected>Maintenance</option>
+                <option value="deep">Deep Clean</option>
+                <option value="move">Move-In / Move-Out</option>
+                <option value="post">Post-Construction (Residential)</option>
+              </select>
+            </div>
+            <div>
+              <label for="soilLevel">Soil level</label>
+              <select id="soilLevel">
+                <option value="light">Light</option>
+                <option value="normal" selected>Normal</option>
+                <option value="heavy">Heavy</option>
+                <option value="severe">Severe</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="floorType">Primary floor type</label>
+              <select id="floorType">
+                <option value="carpet" selected>Carpet / Area Rugs</option>
+                <option value="tile">Ceramic / Porcelain Tile</option>
+                <option value="groutHeavy">Tile (Heavy Grout Detail)</option>
+                <option value="hardwood">Hardwood (sealed – dry / damp method)</option>
+                <option value="engineered">Engineered Wood</option>
+                <option value="laminate">Laminate</option>
+                <option value="vinyl">Vinyl / LVP / LVT</option>
+                <option value="stone">Natural Stone (marble, slate, travertine)</option>
+                <option value="concrete">Sealed Concrete</option>
+                <option value="bamboo">Bamboo</option>
+                <option value="cork">Cork</option>
+              </select>
+            </div>
+            <div>
+              <label for="firstTime">First-time clean?</label>
+              <select id="firstTime">
+                <option value="no" selected>No</option>
+                <option value="yes">Yes (defaults to Heavy if soil is Normal/Light)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="sectionTitle">Mixed Flooring (Optional)</div>
+          <div id="extraFloors"></div>
+          
+          <div class="btns" style="margin-top:6px;">
+            <button type="button" class="btn" id="addFloor" style="padding: 8px 12px; font-size: 13px;">+ Add floor type</button>
+          </div>
+          
+          <div class="sectionTitle">Bathrooms + Kitchen (Fixed Adders)</div>
+
+          <div class="row">
+            <div>
+              <label for="fullBaths">Full bathrooms</label>
+              <input id="fullBaths" type="number" min="0" step="1" value="2" />
+            </div>
+            <div>
+              <label for="halfBaths">Half bathrooms</label>
+              <input id="halfBaths" type="number" min="0" step="1" value="1" />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="kitchen">Kitchen included?</label>
+              <select id="kitchen">
+                <option value="yes" selected>Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+            <div>
+              <label for="kitchenGrease">Kitchen grease/buildup?</label>
+              <select id="kitchenGrease">
+                <option value="no" selected>No</option>
+                <option value="yes">Yes (+ time)</option>
+              </select>
+            </div>
+          </div>
+
+<div class="sectionTitle">General Clean – ISSA Baseline</div>
+<div class="hint" style="margin-bottom:12px">
+  These items are included in the Sq Ft base rate and are auto-selected for Maintenance, Deep, and Move-In/Out.
+</div>
+
+<div class="task-group">
+  <h4>Whole Home</h4>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="genDust">
+    <span>Dust reachable horizontal surfaces</span>
+  </label>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="genVacuum">
+    <span>Vacuum carpets and rugs</span>
+  </label>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="genMop">
+    <span>Mop hard floors (proper chemistry)</span>
+  </label>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="genTrash">
+    <span>Empty trash</span>
+  </label>
+</div>
+
+<div class="task-group">
+  <h4>Kitchen</h4>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="genKitchen">
+    <span>Countertops, sink, appliance exteriors</span>
+  </label>
+</div>
+
+<div class="task-group">
+  <h4>Bathrooms</h4>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="genBath">
+    <span>Toilet, sink, mirror, shower/tub surface</span>
+  </label>
+</div>
+
+
+          <div class="sectionTitle">Deep Clean – Required Tasks</div>
+          <div class="hint" style="margin-bottom:12px;">Select "Deep Clean" above to auto-check these items. Price adjustments applied per line item.</div>
+
+          <div class="task-group">
+            <h4>General / Living Areas</h4>
+            <label class="task-label"><input type="checkbox" class="task" id="baseboards"> <span>Baseboards cleaned (entire home)</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="underBeds"> <span>Under beds vacuumed</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="underSofas"> <span>Under sofas/chairs vacuumed</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="underDining"> <span>Under dining table vacuumed</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="doorsFrames"> <span>Doors, frames, switches wiped</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="fansVents"> <span>Ceiling fans and vents dusted</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="windowSills"> <span>Window sills and tracks cleaned</span></label>
+          </div>
+
+          <div class="task-group">
+            <h4>Kitchen</h4>
+            <label class="task-label"><input type="checkbox" class="task" id="kitchenSurfaces"> <span>Kitchen surfaces sanitized</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="applianceExt"> <span>Appliance exteriors wiped</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="microwaveInt"> <span>Microwave interior cleaned</span></label>
+          </div>
+
+          <div class="task-group">
+            <h4>Bathrooms</h4>
+            <label class="task-label"><input type="checkbox" class="task" id="bathScrub"> <span>Bathrooms scrubbed and disinfected</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="showerDescale"> <span>Showers/tubs descaled</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="mirrorsFix"> <span>Mirrors and fixtures polished</span></label>
+          </div>
+
+          <div class="task-group">
+            <h4>Whole Home</h4>
+            <label class="task-label"><input type="checkbox" class="task" id="floorsMop"> <span>Floors vacuumed and mopped</span></label>
+            <label class="task-label" style="margin-top:6px"><input type="checkbox" class="task" id="trashRemove"> <span>Trash removed</span></label>
+          </div>
+
+<div class="sectionTitle">Move-In / Move-Out – ISSA Turnover</div>
+<div class="hint" style="margin-bottom:12px">
+  Vacancy-level detailing layered on top of Deep Clean.
+</div>
+
+<div class="task-group">
+  <h4>Whole Home – Turnover</h4>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="moveClosets">
+    <span>Closets cleaned (floors & shelves)</span>
+  </label>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="moveCobwebs">
+    <span>Cobweb removal (corners & ceilings)</span>
+  </label>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="moveInteriorDoors">
+    <span>Interior doors wiped (inside & out)</span>
+  </label>
+</div>
+
+<div class="task-group">
+  <h4>Kitchen – Turnover</h4>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="moveCabinets">
+    <span>Inside cabinets & drawers (empty)</span>
+  </label>
+</div>
+
+<div class="task-group">
+  <h4>Bathrooms – Turnover</h4>
+  <label class="task-label">
+    <input type="checkbox" class="task" id="moveVanity">
+    <span>Inside vanity cabinets</span>
+  </label>
+</div>
+
+
+          <div class="row" style="margin-top:12px;">
+             <div>
+              <label for="moveFurniture">Move Heavy Furniture?</label>
+              <select id="moveFurniture">
+                  <option value="no">No</option>
+                  <option value="yes">Yes (Add time)</option>
+              </select>
+             </div>
+              <div>
+               <label for="intWindows">Interior windows (count)</label>
+               <input id="intWindows" type="number" min="0" step="1" value="0" />
+             </div>
+          </div>
+          
+          <div class="row" style="margin-top:12px;">
+             <div>
+              <label for="customAdder">Custom add-on hours</label>
+              <input id="customAdder" type="number" min="0" step="0.05" value="0" />
+            </div>
+          </div>
+
+          <div class="sectionTitle">Add Ons (Flat Rate)</div>
+
+<div class="sectionTitle">Cleaner Notes</div>
+
+<div class="row">
+  <div style="grid-column:1 / -1">
+    <label for="jobNotes">Notes from cleaner (required for issues)</label>
+    <textarea
+      id="jobNotes"
+      rows="4"
+      placeholder="Damage, missing items, access issues, heavy soil, photos referenced, etc."
+      style="
+        width:100%;
+        padding:12px;
+        background:rgba(17,24,39,.7);
+        border:1px solid var(--border);
+        border-radius:12px;
+        color:var(--text);
+        font-size:14px;
+        resize:vertical;
+      "
+    ></textarea>
+    <div class="hint">
+      Notes are stored with the job record and sent to operations/payroll review.
+    </div>
+  </div>
+</div>
+
+
+          <div class="row">
+            <div>
+              <label for="addonWindows">Windows (+$3 each)</label>
+              <input id="addonWindows" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="addonBlinds">Blinds (+$3 each)</label>
+              <input id="addonBlinds" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="addonCabinets">Cabinets (+$40)</label>
+              <input id="addonCabinets" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="addonOven">Oven (+$50)</label>
+              <input id="addonOven" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="addonFridge">Fridge (+$55)</label>
+              <input id="addonFridge" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="addonDishes">Dishes (+$30)</label>
+              <input id="addonDishes" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="addonLaundry">Laundry (+$30)</label>
+              <input id="addonLaundry" type="number" min="0" step="1" value="0">
+            </div>
+            <div>
+              <label for="addonPets">Pets (+$30)</label>
+              <input id="addonPets" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px;">
+            <div>
+              <label for="addonKids">Kids (+$20)</label>
+              <input id="addonKids" type="number" min="0" step="1" value="0">
+            </div>
+          </div>
+
+
+          <div class="sectionTitle">Pricing</div>
+
+          <div class="row">
+            <div>
+              <label for="laborRate">Labor rate ($/labor hour)</label>
+              <input id="laborRate" type="number" min="10" step="1" value="35" />
+            </div>
+            <div>
+              <label for="margin">Margin multiplier</label>
+              <input id="margin" type="number" min="1" step="0.01" value="1.25" />
+              <div class="hint">Example: 1.25 = 25% buffer for overhead, travel, admin, risk.</div>
+            </div>
+          </div>
+
+          <div class="warn" id="warnBox"></div>
+
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="cardHead">
+          <h2>Quote + Standards</h2>
+          <span class="badge" id="stdBadge">Editable standards</span>
+        </div>
+
+        <div class="cardBody">
+          <div class="results">
+            <div class="kpi">
+              <div class="big" id="outPrice">$0</div>
+              <div class="lbl">Estimated price</div>
+              <div class="hint" id="outPriceHint"></div>
+            </div>
+
+            <div class="panel">
+              <h3>Time breakdown</h3>
+              <div class="line">
+                <div class="l">Base labor hours (sq ft)</div>
+                <div class="r" id="outBaseHours">0.00</div>
+              </div>
+              <div class="line">
+                <div class="l">Multipliers applied</div>
+                <div class="r" id="outMults">—</div>
+              </div>
+              <div class="line">
+                <div class="l">Fixed adders (baths/kitchen)</div>
+                <div class="r" id="outFixedAdders">0.00</div>
+              </div>
+              <div class="line">
+                <div class="l">Detail/Deep Clean Tasks</div>
+                <div class="r" id="outDetailAdders">0.00</div>
+              </div>
+              <div class="line">
+                  <div class="l">Add-on task hours (internal)</div>
+                  <div class="r" id="outAddonHours">0.00</div>
+              </div>
+              <div class="line">
+                <div class="l">Total labor hours</div>
+                <div class="r" id="outTotalLabor">0.00</div>
+              </div>
+              <div class="line">
+                <div class="l">Estimated on-site duration</div>
+                <div class="r" id="outDuration">0.00 hrs</div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>Standards (ISSA Logic)</h3>
+              <div class="hint" style="margin-bottom:12px">General cleaning items (floors, trash, surfaces) are included in the SqFt base rate. Specific deep clean items have hourly adders below:</div>
+
+              <div class="row">
+                <div>
+                  <label for="stdBaseline">Baseline sq ft / hr</label>
+                  <input id="stdBaseline" type="number" min="600" step="10" value="1200" />
+                </div>
+                <div>
+                  <label for="stdMinHours">Minimum labor hours</label>
+                  <input id="stdMinHours" type="number" min="0" step="0.1" value="2.5" />
+                </div>
+              </div>
+
+              <div class="sectionTitle">Checklist Task Adders (Hrs)</div>
+              
+              <div class="inline3">
+                <div>
+                  <label for="stdDoors">Doors/Frames</label>
+                  <input id="stdDoors" type="number" min="0" step="0.01" value="0.40" />
+                </div>
+                <div>
+                  <label for="stdFans">Fans/Vents</label>
+                  <input id="stdFans" type="number" min="0" step="0.01" value="0.25" />
+                </div>
+                <div>
+                  <label for="stdSills">Window Sills</label>
+                  <input id="stdSills" type="number" min="0" step="0.01" value="0.25" />
+                </div>
+              </div>
+
+               <div class="inline3" style="margin-top:12px">
+                <div>
+                  <label for="stdApplianceExt">Appliances (Ext)</label>
+                  <input id="stdApplianceExt" type="number" min="0" step="0.01" value="0.25" />
+                </div>
+                <div>
+                  <label for="stdMicrowave">Microwave (Int)</label>
+                  <input id="stdMicrowave" type="number" min="0" step="0.01" value="0.20" />
+                </div>
+                <div>
+                   <label for="stdBaseboards">Baseboards</label>
+                  <input id="stdBaseboards" type="number" min="0" step="0.01" value="0.30" />
+                </div>
+              </div>
+              
+              <div class="inline3" style="margin-top:12px;">
+                <div>
+                  <label for="stdUnderBed">Under beds</label>
+                  <input id="stdUnderBed" type="number" min="0" step="0.01" value="0.20" />
+                </div>
+                <div>
+                  <label for="stdUnderSofa">Under sofas</label>
+                  <input id="stdUnderSofa" type="number" min="0" step="0.01" value="0.15" />
+                </div>
+                <div>
+                  <label for="stdUnderDining">Under dining</label>
+                  <input id="stdUnderDining" type="number" min="0" step="0.01" value="0.10" />
+                </div>
+              </div>
+              
+              <div class="sectionTitle">Base Adders</div>
+
+              <div class="inline3" style="margin-top:12px;">
+                <div>
+                  <label for="stdFullBath">Full bath</label>
+                  <input id="stdFullBath" type="number" min="0" step="0.05" value="0.50" />
+                </div>
+                <div>
+                  <label for="stdHalfBath">Half bath</label>
+                  <input id="stdHalfBath" type="number" min="0" step="0.05" value="0.25" />
+                </div>
+                <div>
+                  <label for="stdKitchen">Kitchen base</label>
+                  <input id="stdKitchen" type="number" min="0" step="0.05" value="0.75" />
+                </div>
+              </div>
+
+              <div class="row" style="margin-top:12px;">
+                <div>
+                  <label for="stdMoveFurniture">Move furniture adder</label>
+                  <input id="stdMoveFurniture" type="number" min="0" step="0.01" value="0.50" />
+                </div>
+                <div>
+                  <label for="stdRoundTo">Round price to ($)</label>
+                  <input id="stdRoundTo" type="number" min="1" step="1" value="5" />
+                </div>
+              </div>
+
+              <div class="btns">
+                <button class="btn" id="btnReset">Reset defaults</button>
+                <button class="btn primary" id="btnCopy">Copy payload (JSON)</button>
+              </div>
+
+              <div class="note">
+                Items like floors, trash, and surfaces default to 0.00 adder hours because they are covered by the main Square Footage calc.
+              </div>
+
+              <div class="smallMono" id="payloadBox" style="display:none;margin-top:10px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+(function(){
+  const $ = (id) => document.getElementById(id);
+
+// ----- ISSA SCOPE PRESETS (AUTO-CHECKLIST) -----
+// This function automatically selects the new checklist items when Deep Clean is chosen
+function applyScopePreset(type){
+  const set = (id, v) => { 
+    const el = $(id);
+    if(el) el.checked = v; 
+  };
+  const setVal = (id, v) => { 
+    const el = $(id);
+    if(el) el.value = v; 
+  };
+
+  // List of all deep clean specific tasks
+  const deepTasks = [
+    "baseboards", "underBeds", "underSofas", "underDining",
+    "doorsFrames", "fansVents", "windowSills",
+    "kitchenSurfaces", "applianceExt", "microwaveInt",
+    "bathScrub", "showerDescale", "mirrorsFix",
+    "floorsMop", "trashRemove"
+  ];
+
+  // Reset first
+  deepTasks.forEach(id => set(id, false));
+  setVal("intWindows", 0);
+  setVal("moveFurniture", "no");
+
+  if(type === "maintenance"){
+    // Maintenance defaults: maybe just surfaces/floors/trash?
+    set("kitchenSurfaces", true);
+    set("bathScrub", true);
+    set("mirrorsFix", true);
+    set("floorsMop", true);
+    set("trashRemove", true);
+["genDust","genVacuum","genMop","genTrash","genKitchen","genBath"]
+  .forEach(id => set(id,true));
+
+  }
+
+  if(type === "deep"){
+    // SELECT ALL TASKS
+    deepTasks.forEach(id => set(id, true));
+["genDust","genVacuum","genMop","genTrash","genKitchen","genBath"]
+  .forEach(id => set(id,true));
+
+  }
+
+  if(type === "move"){
+    // Turnover / vacancy clean (All tasks + furniture + windows)
+    deepTasks.forEach(id => set(id, true));
+    setVal("moveFurniture", "yes");
+    setVal("intWindows", 10); 
+[
+ "genDust","genVacuum","genMop","genTrash","genKitchen","genBath",
+ "moveClosets","moveCobwebs","moveInteriorDoors","moveCabinets","moveVanity"
+].forEach(id => set(id,true));
+
+  }
+}
+
+
+  // ----- Helpers -----
+  function num(v, fallback=0){
+    const x = Number(v);
+    return Number.isFinite(x) ? x : fallback;
+  }
+  function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+  function money(n){
+    return new Intl.NumberFormat(undefined, {style:"currency", currency:"USD"}).format(n);
+  }
+  function roundTo(n, step){
+    const s = Math.max(1, num(step, 1));
+    return Math.round(n / s) * s;
+  }
+  function fmtHours(h){ return (Math.round(h * 100) / 100).toFixed(2); }
+
+  // ----- Multipliers (editable via code if needed) -----
+  const soilMult = {
+    light: 0.85,
+    normal: 1.00,
+    heavy: 1.35,
+    severe: 1.75
+  };
+ const serviceMult = {
+  maintenance: 1.55,
+  deep: 2.05,
+  move: 2.55,
+  post: 3.00
+};
+  const floorMult = {
+    carpet: 1.00,        // vacuum + spot treat
+    tile: 1.10,          // mop + edge work
+    groutHeavy: 1.30,    // grout lines + agitation
+    hardwood: 1.15,      // dry / damp mop only
+    engineered: 1.10,    // low-moisture
+    laminate: 1.05,      // dry / minimal moisture
+    vinyl: 1.05,         // neutral cleaner
+    stone: 1.35,         // pH-neutral + caution
+    concrete: 1.20,      // sealed surface, dust + damp
+    bamboo: 1.15,        // moisture-sensitive
+    cork: 1.20           // delicate, low moisture
+  };
+
+  // ----- Dynamic Floor Row Creator -----
+  function createFloorRow(){
+    const row = document.createElement("div");
+    row.className = "extraRow";
+
+    row.innerHTML = `
+      <div>
+        <select class="extraFloorType">
+          <option value="carpet">Carpet / Rugs</option>
+          <option value="tile">Tile</option>
+          <option value="groutHeavy">Tile (Heavy Grout)</option>
+          <option value="hardwood">Hardwood</option>
+          <option value="engineered">Engineered Wood</option>
+          <option value="laminate">Laminate</option>
+          <option value="vinyl">Vinyl / LVP</option>
+          <option value="stone">Natural Stone</option>
+          <option value="concrete">Concrete</option>
+          <option value="bamboo">Bamboo</option>
+          <option value="cork">Cork</option>
+        </select>
+      </div>
+
+      <div>
+        <input class="extraFloorPct" type="number" min="1" max="100" step="1" placeholder="% of home" />
+      </div>
+      
+      <div class="delBtn" title="Remove floor">×</div>
+    `;
+
+    // Bind listeners to new inputs
+    row.querySelectorAll("select,input").forEach(el=>{
+      el.addEventListener("input", compute);
+      el.addEventListener("change", compute);
+    });
+    
+    // Bind delete
+    row.querySelector(".delBtn").addEventListener("click", ()=>{
+      row.remove();
+      compute();
+    });
+
+    return row;
+  }
+
+  function buildPayload(calc){
+    return {
+      version: "residential_v1_issa_aligned",
+      inputs: calc.inputs,
+      standards: calc.standards,
+      outputs: calc.outputs,
+      notes: calc.notes
+    };
+  }
+
+// ----- ISSA LABOR HOURS: GENERAL CLEAN -----
+const generalHoursStd = {
+  dust: 0.20,
+  vacuum: 0.25,
+  mop: 0.25,
+  trash: 0.10,
+  kitchen: 0.30,
+  bath: 0.35
+};
+
+// ----- ISSA LABOR HOURS: MOVE-IN / MOVE-OUT -----
+const moveHoursStd = {
+  closets: 0.40,
+  cobwebs: 0.25,
+  interiorDoors: 0.35,
+  cabinetsInside: 0.75,
+  vanityInside: 0.40
+};
+
+
+  // Internal constants
+  const addonHoursStd = {
+    windows: 0.05,
+    blinds: 0.07,
+    cabinets: 0.75,
+    oven: 0.60,
+    fridge: 0.70,
+    dishes: 0.50,
+    laundry: 0.50,
+    pets: 0.40,
+    kids: 0.30
+  };
+
+
+  function compute(){
+    // Inputs
+    const sqft = clamp(num($("sqft").value, 0), 0, 50000);
+    const cleaners = clamp(num($("cleaners").value, 1), 1, 20);
+
+    const serviceType = $("serviceType").value;
+    let soilLevel = $("soilLevel").value;
+    const floorType = $("floorType").value;
+    const firstTime = $("firstTime").value;
+
+    const fullBaths = clamp(num($("fullBaths").value, 0), 0, 20);
+    const halfBaths = clamp(num($("halfBaths").value, 0), 0, 20);
+    const kitchen = $("kitchen").value;
+    const kitchenGrease = $("kitchenGrease").value;
+
+// General Clean
+const genDust = $("genDust").checked;
+const genVacuum = $("genVacuum").checked;
+const genMop = $("genMop").checked;
+const genTrash = $("genTrash").checked;
+const genKitchen = $("genKitchen").checked;
+const genBath = $("genBath").checked;
+
+// Move-In / Move-Out
+const moveClosets = $("moveClosets").checked;
+const moveCobwebs = $("moveCobwebs").checked;
+const moveInteriorDoors = $("moveInteriorDoors").checked;
+const moveCabinets = $("moveCabinets").checked;
+const moveVanity = $("moveVanity").checked;
+
+
+    // --- CHECKLIST INPUTS ---
+    const underBeds = $("underBeds").checked;
+    const underSofas = $("underSofas").checked;
+    const underDining = $("underDining").checked;
+    const baseboards = $("baseboards").checked;
+    const doorsFrames = $("doorsFrames").checked;
+    const fansVents = $("fansVents").checked;
+    const windowSills = $("windowSills").checked;
+    const applianceExt = $("applianceExt").checked;
+    const microwaveInt = $("microwaveInt").checked;
+    
+    // These are visual scope items usually covered by Base Rate, but we track them
+    // const kitchenSurfaces = $("kitchenSurfaces").checked;
+    // const bathScrub = $("bathScrub").checked;
+    // const floorsMop = $("floorsMop").checked;
+    
+    const moveFurniture = $("moveFurniture").value === "yes";
+
+    const intWindows = clamp(num($("intWindows").value, 0), 0, 200);
+    const customAdder = clamp(num($("customAdder").value, 0), 0, 50);
+const jobNotes = $("jobNotes").value.trim();
+
+
+    const laborRate = clamp(num($("laborRate").value, 0), 0, 500);
+    const margin = clamp(num($("margin").value, 1), 1, 5);
+
+    // Standards (editable)
+    const baselineSqftPerLaborHr = clamp(num($("stdBaseline").value, 1200), 300, 5000);
+    const minLaborHours = clamp(num($("stdMinHours").value, 0), 0, 20);
+
+    const fullBathHours = clamp(num($("stdFullBath").value, 0.50), 0, 5);
+    const halfBathHours = clamp(num($("stdHalfBath").value, 0.25), 0, 5);
+    const kitchenBaseHours = clamp(num($("stdKitchen").value, 0.75), 0, 10);
+    // Kitchen grease is handled as an adder
+    
+    const underBedHours = clamp(num($("stdUnderBed").value, 0.20), 0, 2);
+    const underSofaHours = clamp(num($("stdUnderSofa").value, 0.15), 0, 2);
+    const underDiningHours = clamp(num($("stdUnderDining").value, 0.10), 0, 2);
+    const baseboardsHours = clamp(num($("stdBaseboards").value, 0.30), 0, 5);
+    
+    // NEW STANDARD HOURS
+    const doorsHours = clamp(num($("stdDoors").value, 0.40), 0, 5);
+    const fansHours = clamp(num($("stdFans").value, 0.25), 0, 5);
+    const sillsHours = clamp(num($("stdSills").value, 0.25), 0, 5);
+    const applianceHours = clamp(num($("stdApplianceExt").value, 0.25), 0, 5);
+    const microwaveHours = clamp(num($("stdMicrowave").value, 0.20), 0, 5);
+
+    const moveFurnitureHours = clamp(num($("stdMoveFurniture").value, 0.50), 0, 5);
+    
+    // Window each
+    const windowEachHours = 0.08; // Hardcoded or add input if needed
+
+    const roundStep = clamp(num($("stdRoundTo").value, 5), 1, 100);
+
+    // First-time guardrail
+    let appliedSoil = soilLevel;
+    if(firstTime === "yes" && (soilLevel === "light" || soilLevel === "normal")){
+      appliedSoil = "heavy";
+    }
+
+    // Base hours
+    const baseHours = sqft > 0 ? (sqft / baselineSqftPerLaborHr) : 0;
+
+    // Multipliers
+    const mSoil = soilMult[appliedSoil] ?? 1.0;
+    const mService = serviceMult[serviceType] ?? 1.0;
+    
+    // ---------- WEIGHTED FLOOR MULTIPLIER ----------
+    let totalWeighted = 0;
+    let usedPct = 0;
+
+    // Get dynamic floors
+    const extraTypes = document.querySelectorAll(".extraFloorType");
+    const extraPcts = document.querySelectorAll(".extraFloorPct");
+
+    // Add extra floors to calc
+    extraTypes.forEach((sel, i)=>{
+      const pct = clamp(num(extraPcts[i].value, 0), 0, 100);
+      const m = floorMult[sel.value] ?? 1.0;
+      if(pct > 0){
+        totalWeighted += m * pct;
+        usedPct += pct;
+      }
+    });
+
+    // Remainder goes to primary floor
+    const remainingPct = Math.max(0, 100 - usedPct);
+    const primaryM = floorMult[floorType] ?? 1.0;
+    
+    totalWeighted += primaryM * remainingPct;
+    const divisor = 100; 
+    const mFloor = totalWeighted / divisor;
+
+   const adjustedHours = baseHours * mSoil * mFloor;
+
+
+
+    // Fixed adders
+    const bathHours = fullBaths * fullBathHours + halfBaths * halfBathHours;
+    const kitchenHours = (kitchen === "yes" ? kitchenBaseHours : 0) + (kitchen === "yes" && kitchenGrease === "yes" ? 0.25 : 0);
+    const fixedAdders = bathHours + kitchenHours;
+
+const isDeepOrMove = serviceType === "deep" || serviceType === "move";
+
+
+// Detail adders (From Checklist)
+let detailAdders = 0;
+
+// ----- GENERAL CLEAN (ISSA) -----
+
+// ----- DEEP CLEAN -----
+if(isDeepOrMove){
+  if(underBeds) detailAdders += underBedHours;
+  if(underSofas) detailAdders += underSofaHours;
+  if(underDining) detailAdders += underDiningHours;
+  if(baseboards) detailAdders += baseboardsHours;
+  if(doorsFrames) detailAdders += doorsHours;
+  if(fansVents) detailAdders += fansHours;
+  if(windowSills) detailAdders += sillsHours;
+  if(applianceExt) detailAdders += applianceHours;
+  if(microwaveInt) detailAdders += microwaveHours;
+}
+
+// ----- MOVE-IN / MOVE-OUT -----
+if(serviceType === "move"){
+  if(moveClosets) detailAdders += moveHoursStd.closets;
+  if(moveCobwebs) detailAdders += moveHoursStd.cobwebs;
+  if(moveInteriorDoors) detailAdders += moveHoursStd.interiorDoors;
+  if(moveCabinets) detailAdders += moveHoursStd.cabinetsInside;
+  if(moveVanity) detailAdders += moveHoursStd.vanityInside;
+}
+
+// Furniture / windows / custom
+if(moveFurniture) detailAdders += moveFurnitureHours;
+detailAdders += intWindows * windowEachHours;
+detailAdders += customAdder;
+
+// ----- ADDON ELEMENT BINDINGS -----
+const addonWindows  = $("addonWindows");
+const addonBlinds   = $("addonBlinds");
+const addonCabinets = $("addonCabinets");
+const addonOven     = $("addonOven");
+const addonFridge   = $("addonFridge");
+const addonDishes   = $("addonDishes");
+const addonLaundry  = $("addonLaundry");
+const addonPets     = $("addonPets");
+const addonKids     = $("addonKids");
+
+
+// ----- ADD-ON LABOR HOURS (ISSA TASK TIME) -----
+const addonLaborHours =
+  num(addonWindows.value)  * addonHoursStd.windows +
+  num(addonBlinds.value)   * addonHoursStd.blinds +
+  num(addonCabinets.value) * addonHoursStd.cabinets +
+  num(addonOven.value)     * addonHoursStd.oven +
+  num(addonFridge.value)   * addonHoursStd.fridge +
+  num(addonDishes.value)   * addonHoursStd.dishes +
+  num(addonLaundry.value)  * addonHoursStd.laundry +
+  num(addonPets.value)     * addonHoursStd.pets +
+  num(addonKids.value)     * addonHoursStd.kids;
+
+// ✅ TOTAL LABOR HOURS
+let totalLaborHours =
+  adjustedHours +
+  fixedAdders +
+  detailAdders +
+  addonLaborHours;
+
+// Internal tracking
+const internalLaborHours = totalLaborHours;
+
+    const minApplied = totalLaborHours < minLaborHours && totalLaborHours > 0;
+    if(minApplied) totalLaborHours = minLaborHours;
+
+    // Duration on-site
+    const durationHours = cleaners > 0 ? (totalLaborHours / cleaners) : totalLaborHours;
+
+    // Price
+   // ----- ANCHOR PRICING (SQFT-BASED, CUSTOMER PRICE) -----
+let anchorPrice = 0;
+
+if(serviceType === "maintenance"){
+  anchorPrice = sqft * 0.12 + fullBaths * 30 + 40;
+}
+else if(serviceType === "deep"){
+  anchorPrice = sqft * 0.16 + fullBaths * 35 + 50;
+}
+else if(serviceType === "move"){
+  anchorPrice = sqft * 0.22 + fullBaths * 35 + 55;
+}
+else if(serviceType === "post"){
+  anchorPrice = sqft * 0.28 + fullBaths * 40 + 75;
+}
+
+let rawPrice = anchorPrice;
+
+// ----- ADD-ONS (FLAT PRICE) -----
+const addonTotal =
+  num(addonWindows.value)*3 +
+  num(addonBlinds.value)*3 +
+  num(addonCabinets.value)*40 +
+  num(addonOven.value)*50 +
+  num(addonFridge.value)*55 +
+  num(addonDishes.value)*30 +
+  num(addonLaundry.value)*30 +
+  num(addonPets.value)*30 +
+  num(addonKids.value)*20;
+
+rawPrice += addonTotal;
+
+    rawPrice = roundTo(rawPrice, roundStep);
+
+    // Warnings
+    const warn = [];
+    if(usedPct > 100){
+      warn.push(`Floor percentages sum to ${usedPct}%. Please adjust so they total 100% or less.`);
+    }
+
+    if(sqft <= 0) warn.push("Square footage is required.");
+    if(laborRate <= 0) warn.push("Labor rate must be greater than $0.");
+    if(firstTime === "yes" && appliedSoil === "heavy" && soilLevel !== "heavy" && soilLevel !== "severe"){
+      warn.push("First-time clean guardrail applied: Soil level elevated to Heavy to prevent under-scoping.");
+    }
+    if(minApplied){
+      warn.push(`Minimum labor hours applied: increased to ${fmtHours(minLaborHours)} labor hrs to prevent under-scoping.`);
+    }
+
+    // Output UI
+    $("outBaseHours").textContent = fmtHours(baseHours);
+    $("outMults").textContent = `${mService.toFixed(2)}× service • ${mSoil.toFixed(2)}× soil • ${mFloor.toFixed(2)}× floors`;
+    $("outFixedAdders").textContent = fmtHours(fixedAdders);
+    $("outDetailAdders").textContent = fmtHours(detailAdders);
+    $("outAddonHours").textContent = fmtHours(addonLaborHours);
+
+    $("outTotalLabor").textContent = fmtHours(totalLaborHours);
+    $("outDuration").textContent = `${fmtHours(durationHours)} hrs (with ${cleaners} cleaner${cleaners>1?"s":""})`;
+    $("outPrice").textContent = money(rawPrice);
+
+    $("outPriceHint").textContent =
+      `Sq Ft anchor pricing + service level + add-ons, rounded to $${roundStep}`;
+
+    $("pillBaseline").textContent = `${baselineSqftPerLaborHr.toLocaleString()} sq ft / labor hr`;
+    $("pillMin").textContent = `${fmtHours(minLaborHours)} labor hrs`;
+
+    const warnBox = $("warnBox");
+    if(warn.length){
+      warnBox.classList.add("show");
+      warnBox.textContent = warn.join(" ");
+    }else{
+      warnBox.classList.remove("show");
+      warnBox.textContent = "";
+    }
+
+    // Payload preview (for Make)
+    const calc = {
+      inputs: {
+
+	customer: {
+    first_name: $("custFirst").value.trim(),
+    last_name: $("custLast").value.trim(),
+    email: $("custEmail").value.trim(),
+    phone: $("custPhone").value.trim(),
+    address: $("custAddress").value.trim(),
+    city: $("custCity").value.trim(),
+    state: $("custState").value.trim(),
+    zip: $("custZip").value.trim()
+  },
+        sqft, cleaners,
+        serviceType,
+        soilLevel_selected: soilLevel,
+        soilLevel_applied: appliedSoil,
+        floorType,
+        extraFloors: Array.from(document.querySelectorAll(".extraFloorType")).map((el,i)=>({
+          type: el.value,
+          pct: num(document.querySelectorAll(".extraFloorPct")[i].value,0)
+        })),
+        firstTime,
+        fullBaths, halfBaths,
+        kitchen, kitchenGrease,
+        details: {
+  // General
+  genDust, genVacuum, genMop, genTrash, genKitchen, genBath,
+
+  // Deep
+  underBeds, underSofas, underDining, baseboards, doorsFrames,
+  fansVents, windowSills, applianceExt, microwaveInt,
+
+  // Move-In / Out
+  moveClosets, moveCobwebs, moveInteriorDoors, moveCabinets, moveVanity,
+
+  // Other
+moveFurniture, intWindows, customAdder,
+
+  // Notes
+  notes: jobNotes
+},
+
+
+        laborRate, margin
+      },
+      standards: {
+        baselineSqftPerLaborHr,
+        minLaborHours,
+        fullBathHours,
+        halfBathHours,
+        kitchenBaseHours,
+        underBedHours,
+        underSofaHours,
+        underDiningHours,
+        baseboardsHours,
+        doorsHours,
+        fansHours,
+        sillsHours,
+        applianceHours,
+        microwaveHours,
+        moveFurnitureHours,
+        priceRoundStep: roundStep,
+        multipliers: { soilMult, serviceMult, floorMult }
+      },
+     outputs: {
+      baseHours,
+      adjustedHours,
+      fixedAdders,
+      detailAdders,
+      addonLaborHours,
+      totalLaborHours,
+      internalLaborHours,
+      durationHours,
+      rawPrice
+    },
+      notes: warn
+    };
+
+    return calc;
+  }
+
+  function setDefaults(){
+    $("sqft").value = 1400;
+    $("cleaners").value = 1;
+    $("serviceType").value = "maintenance";
+    $("soilLevel").value = "normal";
+    $("floorType").value = "carpet";
+    $("firstTime").value = "no";
+    $("fullBaths").value = 2;
+    $("halfBaths").value = 1;
+    $("kitchen").value = "yes";
+    $("kitchenGrease").value = "no";
+    
+    // Uncheck all checklists
+    const deepTasks = [
+      "baseboards", "underBeds", "underSofas", "underDining",
+      "doorsFrames", "fansVents", "windowSills",
+      "kitchenSurfaces", "applianceExt", "microwaveInt",
+      "bathScrub", "showerDescale", "mirrorsFix",
+      "floorsMop", "trashRemove"
+    ];
+    deepTasks.forEach(id => $(id).checked = false);
+    
+    $("moveFurniture").value = "no";
+    $("intWindows").value = 0;
+    $("customAdder").value = 0;
+    $("laborRate").value = 35;
+    $("margin").value = 1.25;
+
+    // Addons
+    $("addonWindows").value = 0;
+    $("addonBlinds").value = 0;
+    $("addonCabinets").value = 0;
+    $("addonOven").value = 0;
+    $("addonFridge").value = 0;
+    $("addonDishes").value = 0;
+    $("addonLaundry").value = 0;
+    $("addonPets").value = 0;
+    $("addonKids").value = 0;
+
+    $("stdBaseline").value = 1200;
+    $("stdMinHours").value = 2.5;
+    $("stdFullBath").value = 0.50;
+    $("stdHalfBath").value = 0.25;
+    $("stdKitchen").value = 0.75;
+    
+    $("stdUnderBed").value = 0.20;
+    $("stdUnderSofa").value = 0.15;
+    $("stdUnderDining").value = 0.10;
+    $("stdBaseboards").value = 0.30;
+    
+    // New standards
+    $("stdDoors").value = 0.40;
+    $("stdFans").value = 0.25;
+    $("stdSills").value = 0.25;
+    $("stdApplianceExt").value = 0.25;
+    $("stdMicrowave").value = 0.20;
+
+    $("stdMoveFurniture").value = 0.50;
+
+    $("stdRoundTo").value = 5;
+
+    // clear extras
+    $("extraFloors").innerHTML = "";
+
+    $("payloadBox").style.display = "none";
+    $("payloadBox").textContent = "";
+    applyScopePreset("maintenance"); // Apply default visual checks
+    compute();
+  }
+
+  // Bind Listeners
+  const inputIds = [
+    "sqft","cleaners","serviceType","soilLevel","floorType","firstTime",
+    "fullBaths","halfBaths","kitchen","kitchenGrease", 
+    "addonWindows","addonBlinds","addonCabinets","addonOven",
+    "addonFridge","addonDishes","addonLaundry","addonPets","addonKids",
+    "moveFurniture","intWindows","customAdder",
+    "laborRate","margin",
+    
+// General Clean
+"genDust","genVacuum","genMop","genTrash","genKitchen","genBath",
+
+// Move-In / Move-Out
+"moveClosets","moveCobwebs","moveInteriorDoors","moveCabinets","moveVanity",
+
+
+    // Checklists
+    "baseboards", "underBeds", "underSofas", "underDining",
+    "doorsFrames", "fansVents", "windowSills",
+    "kitchenSurfaces", "applianceExt", "microwaveInt",
+    "bathScrub", "showerDescale", "mirrorsFix",
+    "floorsMop", "trashRemove",
+
+    // Standards
+    "stdBaseline","stdMinHours","stdFullBath","stdHalfBath","stdKitchen",
+    "stdUnderBed","stdUnderSofa","stdUnderDining","stdBaseboards",
+    "stdDoors","stdFans","stdSills","stdApplianceExt","stdMicrowave",
+    "stdMoveFurniture","stdRoundTo"
+  ];
+
+  inputIds.forEach(id=>{
+    const el = $(id);
+    if(el){
+      el.addEventListener("input", ()=>{ 
+        if(id === "serviceType") applyScopePreset(el.value);
+        compute(); 
+      });
+      el.addEventListener("change", ()=>{ 
+        compute(); 
+      });
+    }
+  });
+
+  $("addFloor").addEventListener("click", ()=>{
+    $("extraFloors").appendChild(createFloorRow());
+  });
+
+  $("btnReset").addEventListener("click", setDefaults);
+
+  $("btnCopy").addEventListener("click", async ()=>{
+    const calc = compute();
+    const payload = JSON.stringify(buildPayload(calc), null, 2);
+
+    // show preview
+    $("payloadBox").style.display = "block";
+    $("payloadBox").textContent = payload;
+
+    // copy to clipboard
+    try{
+      await navigator.clipboard.writeText(payload);
+      $("stdBadge").textContent = "Payload copied";
+      setTimeout(()=> $("stdBadge").textContent = "Editable standards", 1200);
+    }catch(e){
+      $("stdBadge").textContent = "Copy failed (browser)";
+      setTimeout(()=> $("stdBadge").textContent = "Editable standards", 1600);
+    }
+  });
+
+
+  // Init
+  setDefaults();
+})();
+</script>
+</body>
+</html>
