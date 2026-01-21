@@ -1603,17 +1603,25 @@ $("btnSendQuote").addEventListener("click", async () => {
 
   try {
     const res = await fetch(
-      "https://hook.us1.make.com/swiqj9f9hkyk6yk86lbj6we79t47f2em",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      }
-    );
+  "https://hook.us1.make.com/swiqj9f9hkyk6yk86lbj6we79t47f2em",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }
+);
 
-    if (!res.ok) throw new Error("Webhook failed");
+if (!res.ok) throw new Error("Webhook failed");
 
-    alert("Quote sent successfully.");
+const data = await res.json();
+
+if (!data.job_id) {
+  throw new Error("No job_id returned from Make");
+}
+
+window.location.href =
+  `/cleaner-execution?job_id=${encodeURIComponent(data.job_id)}`;
+
   } catch (err) {
     console.error(err);
     alert("Failed to send quote. Check Make.com logs.");
@@ -1681,6 +1689,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
