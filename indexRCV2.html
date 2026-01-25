@@ -241,6 +241,36 @@
         align-items:center;justify-content:center;
     }
     .delBtn:hover { background: rgba(239,68,68,0.2); }
+
+	  /* ===== Manual Price Override (Dark Inset Style) ===== */
+.override-input {
+  width: 100%;
+  background: linear-gradient(180deg, #0b1220, #0f172a);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  box-shadow:
+    inset 0 1px 2px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.02);
+  transition: all 0.2s ease;
+}
+
+.override-input::placeholder {
+  color: rgba(148,163,184,0.6);
+  font-weight: 400;
+}
+
+.override-input:focus {
+  border-color: #22c55e;
+  box-shadow:
+    inset 0 1px 2px rgba(0,0,0,0.6),
+    0 0 0 3px rgba(34,197,94,0.15);
+}
+
   </style>
 </head>
 
@@ -683,12 +713,14 @@
   <div>
     <label for="manualPrice">Manual price override ($)</label>
     <input
-      id="manualPrice"
-      type="number"
-      min="0"
-      step="1"
-      placeholder="Leave blank to auto-calculate"
-    />
+  id="manualPrice"
+  type="number"
+  min="0"
+  step="1"
+  placeholder="Leave blank to auto-calculate"
+  class="override-input"
+>
+
     <div class="hint">
       If entered, this price overrides the calculator output.
     </div>
@@ -1792,6 +1824,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
