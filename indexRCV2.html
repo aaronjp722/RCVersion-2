@@ -241,31 +241,6 @@
         align-items:center;justify-content:center;
     }
     .delBtn:hover { background: rgba(239,68,68,0.2); }
-
-/* --- CALENDAR SYSTEM STYLES --- */
-    #admin-root {
-        font-family: 'Inter', sans-serif;
-        background-color: var(--bg-body);
-        color: #e4e4e7;
-        height: 600px;
-        display: flex;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        position: relative;
-        overflow: hidden;
-        margin-top: 24px;
-    }
-    .app-sidebar { width: 220px; background: var(--bg-panel); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-    .app-main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--bg-body); }
-    .toolbar-cal { height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(8px); }
-    .calendar-container { flex: 1; overflow-y: auto; padding: 12px; }
-    .grid-header-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; margin-bottom: 8px; }
-    .main-grid-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-    .day-column-cal { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 6px; min-height: 100px; display: flex; flex-direction: column; transition: 0.2s; }
-    .day-column-cal:hover { border-color: #3f3f46; }
-    .shift-pill-cal { background: #27272a; border-left: 3px solid #a1a1aa; padding: 6px 8px; border-radius: 4px; cursor: pointer; margin: 2px; transition: 0.2s; font-size: 11px; }
-    .shift-pill-cal:hover { transform: scale(1.02); filter: brightness(1.2); }
-	  
   </style>
 </head>
 
@@ -827,37 +802,6 @@
               <div class="btns">
                 <button class="btn" id="btnReset">Reset defaults</button>
                 <button class="btn primary" id="btnCopy">Copy payload (JSON)</button>
-
-				  <div id="admin-root">
-          <div class="app-sidebar">
-            <div style="padding:16px; border-bottom:1px solid var(--border); font-weight:800; font-size:12px;">AVAILABILITY</div>
-            <div style="padding:12px;">
-              <label style="font-size:10px; color:var(--muted)">AREA</label>
-              <select id="filterArea" style="padding:6px; font-size:11px; margin-bottom:12px;">
-                <option value="ALL">All Areas</option>
-                <option value="Billings">Billings</option>
-                <option value="Bozeman">Bozeman</option>
-              </select>
-              <div id="staffListContainer" style="display:flex; flex-direction:column; gap:4px;"></div>
-            </div>
-          </div>
-          
-          <div class="app-main">
-            <div class="toolbar-cal">
-              <div style="display:flex; gap:8px; align-items:center;">
-                <button class="btn" id="prevBtn" style="padding:4px 8px;">&larr;</button>
-                <button class="btn" id="todayBtn" style="padding:4px 8px;">T</button>
-                <button class="btn" id="nextBtn" style="padding:4px 8px;">&rarr;</button>
-                <span id="dateLabel" style="font-size:12px; font-weight:700; margin-left:8px;"></span>
-              </div>
-            </div>
-            
-            <div class="calendar-container">
-              <div class="grid-header-cal" id="headerRow"></div>
-              <div class="main-grid-cal" id="mainGrid"></div>
-            </div>
-          </div>
-        </div>
 				  <div class="sectionTitle">Proposed Booking</div>
 
 <div class="row" style="margin-top:12px;">
@@ -1738,103 +1682,13 @@ $("btnCreateLead").addEventListener("click", async () => {
    
 
 
-  // --- EXISTING CALCULATOR INIT ---
+  // Init
   setDefaults();
 })();
-
-/* --- NEW: CALENDAR SYSTEM LOGIC --- */
-(function initCalendarSystem() {
-    const CONFIG = {
-        SUPABASE_URL: "https://rfdvogakvyodixgpvqvz.supabase.co", 
-        SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmZHZvZ2FrdnlvZGl4Z3B2cXZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwMzU4MDMsImV4cCI6MjA4MjYxMTgwM30.UumTuz6AaKL8uYmmNxFj1ec5CInHVNQowt6LRo4cu-E"
-    };
-
-    // Initialize Supabase
-    const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
-    
-    let currentDate = new Date();
-    let allShifts = [];
-    let staffMap = {};
-
-    async function loadCalendarData() {
-        const { data, error } = await supabase.from('cleaner_availability_time_slots').select('*');
-        if (error) return console.error("Calendar Error:", error);
-        allShifts = data || [];
-        renderCalendar();
-        updateStaffList();
-    }
-
-    function renderCalendar() {
-        const grid = document.getElementById('mainGrid');
-        const header = document.getElementById('headerRow');
-        const label = document.getElementById('dateLabel');
-        if (!grid || !header) return;
-
-        grid.innerHTML = '';
-        header.innerHTML = '';
-
-        // Render Day Labels
-        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
-            header.innerHTML += `<div style="text-align:center; font-size:10px; color:var(--muted); font-weight:700;">${d}</div>`;
-        });
-
-        // Calculate Start of Week
-        const start = new Date(currentDate);
-        start.setDate(currentDate.getDate() - currentDate.getDay());
-        
-        label.innerText = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + 
-                          " - " + 
-                          new Date(start.getTime() + 6*86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-        for (let i = 0; i < 7; i++) {
-            const day = new Date(start);
-            day.setDate(start.getDate() + i);
-            const dateKey = day.toISOString().split('T')[0];
-            
-            const col = document.createElement('div');
-            col.className = 'day-column-cal';
-            col.innerHTML = `<div style="text-align:center; font-size:10px; padding:4px; border-bottom:1px solid rgba(255,255,255,0.05); color:var(--muted);">${day.getDate()}</div>`;
-            
-            const dayShifts = allShifts.filter(s => s.date === dateKey);
-            dayShifts.forEach(shift => {
-                const pill = document.createElement('div');
-                pill.className = 'shift-pill-cal';
-                pill.innerHTML = `<div style="font-weight:700; color:white;">${shift.user_name}</div>
-                                  <div style="font-size:9px; color:var(--muted);">${shift.start_time.slice(0,5)}</div>`;
-                col.appendChild(pill);
-            });
-            grid.appendChild(col);
-        }
-    }
-
-    function updateStaffList() {
-        const container = document.getElementById('staffListContainer');
-        if (!container) return;
-        const names = [...new Set(allShifts.map(s => s.user_name))].sort();
-        container.innerHTML = names.map(name => `
-            <div style="font-size:11px; padding:6px; border-radius:6px; background:rgba(255,255,255,0.05); color:var(--text); border:1px solid var(--border);">
-                ${name}
-            </div>
-        `).join('');
-    }
-
-    // Nav Listeners
-    document.getElementById('prevBtn').onclick = () => { currentDate.setDate(currentDate.getDate() - 7); renderCalendar(); };
-    document.getElementById('nextBtn').onclick = () => { currentDate.setDate(currentDate.getDate() + 7); renderCalendar(); };
-    document.getElementById('todayBtn').onclick = () => { currentDate = new Date(); renderCalendar(); };
-
-    loadCalendarData();
-})();
-</script>
-</body>
-</html>
-})();
 </script>
 </body>
 
 </html>
-
-
 
 
 
