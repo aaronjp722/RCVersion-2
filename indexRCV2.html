@@ -645,6 +645,22 @@
 
 
           <div class="sectionTitle">Pricing</div>
+			<div class="row" style="margin-top:12px;">
+  <div>
+    <label for="manualPrice">Manual price override ($)</label>
+    <input
+      id="manualPrice"
+      type="number"
+      min="0"
+      step="1"
+      placeholder="Leave blank to auto-calculate"
+    />
+    <div class="hint">
+      If entered, this price overrides the calculator output.
+    </div>
+  </div>
+</div>
+
 
           <div class="row">
             <div>
@@ -1109,6 +1125,9 @@ const jobNotes = $("jobNotes").value.trim();
 
 
     const laborRate = clamp(num($("laborRate").value, 0), 0, 500);
+	  const manualPriceInput = $("manualPrice").value;
+const manualPrice = manualPriceInput !== "" ? num(manualPriceInput, 0) : null;
+
     const margin = clamp(num($("margin").value, 1), 1, 5);
 
     // Standards (editable)
@@ -1299,7 +1318,10 @@ const addonTotal =
 
 rawPrice += addonTotal;
 
-    rawPrice = roundTo(rawPrice, roundStep);
+    rawPrice = manualPrice !== null
+  ? roundTo(manualPrice, roundStep)
+  : roundTo(rawPrice, roundStep);
+
 
     // Warnings
     const warn = [];
@@ -1328,6 +1350,10 @@ rawPrice += addonTotal;
     $("outPrice").textContent = money(rawPrice);
 
     $("outPriceHint").textContent =
+  manualPrice !== null
+    ? "Manual price override applied"
+    : `Sq Ft anchor pricing + service level + add-ons, rounded to $${roundStep}`;
+
       `Sq Ft anchor pricing + service level + add-ons, rounded to $${roundStep}`;
 
     $("pillBaseline").textContent = `${baselineSqftPerLaborHr.toLocaleString()} sq ft / labor hr`;
@@ -1417,7 +1443,10 @@ moveFurniture, intWindows, customAdder,
       totalLaborHours,
       internalLaborHours,
       durationHours,
-      rawPrice
+      rawPrice,
+		 manualPrice,
+priceFinal: rawPrice
+
     },
       notes: warn
     };
@@ -1595,7 +1624,8 @@ $("btnSendQuote").addEventListener("click", async () => {
     },
 
     quote: {
-      price: calc.outputs.rawPrice,
+  price: calc.outputs.priceFinal,
+
       labor_hours: calc.outputs.totalLaborHours,
       duration_hours: calc.outputs.durationHours,
       service_type: calc.inputs.serviceType,
@@ -1653,7 +1683,7 @@ $("btnCreateLead").addEventListener("click", async () => {
     customer: calc.inputs.customer,
 
     quote: {
-      price: calc.outputs.rawPrice,
+  price: calc.outputs.priceFinal,
       labor_hours: calc.outputs.totalLaborHours,
       duration_hours: calc.outputs.durationHours,
       service_type: calc.inputs.serviceType,
@@ -1693,6 +1723,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
