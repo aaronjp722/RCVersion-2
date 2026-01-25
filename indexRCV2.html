@@ -1264,19 +1264,23 @@ const internalLaborHours = totalLaborHours;
 
     // Price
    // ----- ANCHOR PRICING (SQFT-BASED, CUSTOMER PRICE) -----
+// ----- ANCHOR PRICING (SQFT-BASED, CUSTOMER PRICE) -----
 let anchorPrice = 0;
 
 if(serviceType === "maintenance"){
-  anchorPrice = sqft * 0.12 + fullBaths * 30 + 40;
+  // Standard sqft rate + $30 full bath + $15 half bath + $40 base
+  anchorPrice = (sqft * 0.12) + (fullBaths * 30) + (halfBaths * 15) + 40;
 }
 else if(serviceType === "deep"){
-  anchorPrice = sqft * 0.16 + fullBaths * 35 + 50;
+  // Standard sqft rate + $35 full bath + $15 half bath + $50 base
+  anchorPrice = (sqft * 0.16) + (fullBaths * 35) + (halfBaths * 15) + 50;
 }
 else if(serviceType === "move"){
-  anchorPrice = sqft * 0.22 + fullBaths * 35 + 55;
+  // Standard sqft rate + $35 full bath + $15 half bath + $55 base
+  anchorPrice = (sqft * 0.22) + (fullBaths * 35) + (halfBaths * 15) + 55;
 }
 else if(serviceType === "post"){
-  anchorPrice = sqft * 0.28 + fullBaths * 40 + 75;
+  anchorPrice = (sqft * 0.28) + (fullBaths * 40) + (halfBaths * 15) + 75;
 }
 
 let rawPrice = anchorPrice;
@@ -1689,6 +1693,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
