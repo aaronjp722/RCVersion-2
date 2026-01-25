@@ -645,6 +645,40 @@
 
 
           <div class="sectionTitle">Pricing</div>
+
+<div class="row" style="margin-top:10px;">
+  <label class="task-label" style="width:100%;">
+    <input type="checkbox" id="enableHourOverride">
+
+	  <div class="row" style="margin-top:12px;">
+  <div>
+    <label for="minHoursOverride">Min labor hours (override)</label>
+    <input
+      id="minHoursOverride"
+      type="number"
+      min="0"
+      step="0.25"
+      placeholder="Optional"
+    />
+  </div>
+
+  <div>
+    <label for="maxHoursOverride">Max labor hours (cap)</label>
+    <input
+      id="maxHoursOverride"
+      type="number"
+      min="0"
+      step="0.25"
+      placeholder="Optional"
+    />
+  </div>
+</div>
+
+    <span>Override labor hour range</span>
+  </label>
+</div>
+
+			
 			<div class="row" style="margin-top:12px;">
   <div>
     <label for="manualPrice">Manual price override ($)</label>
@@ -1125,6 +1159,20 @@ const jobNotes = $("jobNotes").value.trim();
 
 
     const laborRate = clamp(num($("laborRate").value, 0), 0, 500);
+
+const hourOverrideEnabled = $("enableHourOverride").checked;
+
+const minHoursOverride =
+  hourOverrideEnabled && $("minHoursOverride").value !== ""
+    ? num($("minHoursOverride").value, 0)
+    : null;
+
+const maxHoursOverride =
+  hourOverrideEnabled && $("maxHoursOverride").value !== ""
+    ? num($("maxHoursOverride").value, 0)
+    : null;
+
+	  
 	  const manualPriceInput = $("manualPrice").value;
 const manualPrice = manualPriceInput !== "" ? num(manualPriceInput, 0) : null;
 
@@ -1272,6 +1320,17 @@ let totalLaborHours =
   detailAdders +
   addonLaborHours;
 
+// ----- HOUR RANGE OVERRIDE (TOGGLE CONTROLLED) -----
+if (hourOverrideEnabled) {
+  if (minHoursOverride !== null && totalLaborHours < minHoursOverride) {
+    totalLaborHours = minHoursOverride;
+  }
+  if (maxHoursOverride !== null && totalLaborHours > maxHoursOverride) {
+    totalLaborHours = maxHoursOverride;
+  }
+}
+
+	  
 // Internal tracking
 const internalLaborHours = totalLaborHours;
 
@@ -1345,7 +1404,10 @@ rawPrice += addonTotal;
     $("outDetailAdders").textContent = fmtHours(detailAdders);
     $("outAddonHours").textContent = fmtHours(addonLaborHours);
 
-    $("outTotalLabor").textContent = fmtHours(totalLaborHours);
+    $("outTotalLabor").textContent =
+  fmtHours(totalLaborHours) +
+  (hourOverrideEnabled ? " (override)" : "");
+
     $("outDuration").textContent = `${fmtHours(durationHours)} hrs (with ${cleaners} cleaner${cleaners>1?"s":""})`;
     $("outPrice").textContent = money(rawPrice);
 
@@ -1435,6 +1497,9 @@ moveFurniture, intWindows, customAdder,
         multipliers: { soilMult, serviceMult, floorMult }
       },
      outputs: {
+		 hourOverrideEnabled,
+minHoursOverride,
+maxHoursOverride,
       baseHours,
       adjustedHours,
       fixedAdders,
@@ -1531,7 +1596,10 @@ priceFinal: rawPrice
     "addonWindows","addonBlinds","addonCabinets","addonOven",
     "addonFridge","addonDishes","addonLaundry","addonPets","addonKids",
     "moveFurniture","intWindows","customAdder",
-    "laborRate","margin", "manualPrice",
+    "laborRate","margin", "manualPrice", "enableHourOverride",
+"minHoursOverride",
+"maxHoursOverride",
+
 
     
 // General Clean
@@ -1724,6 +1792,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
