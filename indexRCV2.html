@@ -889,6 +889,15 @@
   </button>
 </div>
 
+				  <button
+  type="button"
+  class="btn primary"
+  id="btnSendQuote"
+  style="width:100%;"
+>
+  Send Quote
+</button>
+
 
 				
 
@@ -1680,7 +1689,7 @@ $("btnSendQuote").addEventListener("click", async () => {
   }
 
   const payload = {
-    event: "send_quote",
+    event: "create_job_and_assignment",
     source: "residential_calculator",
     sent_at: new Date().toISOString(),
 
@@ -1706,7 +1715,7 @@ $("btnSendQuote").addEventListener("click", async () => {
 
   try {
     const res = await fetch(
-  "https://hook.us1.make.com/swiqj9f9hkyk6yk86lbj6we79t47f2em",
+  "https://hook.us1.make.com/im9hto4x23ipv9mhbz1xncfyoducgg1o",
   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -1718,12 +1727,8 @@ if (!res.ok) throw new Error("Webhook failed");
 
 const data = await res.json();
 
-if (!data.job_id) {
-  throw new Error("No job_id returned from Make");
-}
+alert("Quote sent successfully.");
 
-window.location.href =
-  `/cleaner-execution?job_id=${encodeURIComponent(data.job_id)}`;
 
   } catch (err) {
     console.error(err);
@@ -1792,6 +1797,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
