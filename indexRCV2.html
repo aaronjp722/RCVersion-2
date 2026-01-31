@@ -862,7 +862,8 @@
                 </div>
                 <div>
                   <label for="stdRoundTo">Round price to ($)</label>
-                  <input id="stdRoundTo" type="number" min="1" step="1" value="5" />
+                  <input id="stdRoundTo" type="number" min="0.01" step="0.01" value="0.01" />
+
                 </div>
               </div>
 
@@ -1245,7 +1246,8 @@ const manualPrice = manualPriceInput !== "" ? num(manualPriceInput, 0) : null;
     // Window each
     const windowEachHours = 0.08; // Hardcoded or add input if needed
 
-    const roundStep = clamp(num($("stdRoundTo").value, 5), 1, 100);
+    const roundStep = clamp(num($("stdRoundTo").value, 0.01), 0.01, 100);
+
 
     // First-time guardrail
     let appliedSoil = soilLevel;
@@ -1413,8 +1415,9 @@ const addonTotal =
 rawPrice += addonTotal;
 
     rawPrice = manualPrice !== null
-  ? roundTo(manualPrice, roundStep)
-  : roundTo(rawPrice, roundStep);
+  ? manualPrice
+  : rawPrice;
+
 
 
     // Warnings
@@ -1448,7 +1451,8 @@ rawPrice += addonTotal;
     $("outPriceHint").textContent =
   manualPrice !== null
     ? "Manual price override applied"
-    : `Sq Ft anchor pricing + service level + add-ons, rounded to $${roundStep}`;
+    : `Sq Ft anchor pricing + service level + add-ons (no rounding applied)`;
+
 
       `Sq Ft anchor pricing + service level + add-ons, rounded to $${roundStep}`;
 
@@ -1610,7 +1614,7 @@ priceFinal: rawPrice
 
     $("stdMoveFurniture").value = 0.50;
 
-    $("stdRoundTo").value = 5;
+    $("stdRoundTo").value = .01;
 
     // clear extras
     $("extraFloors").innerHTML = "";
@@ -1800,6 +1804,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
