@@ -241,6 +241,54 @@
         align-items:center;justify-content:center;
     }
     .delBtn:hover { background: rgba(239,68,68,0.2); }
+
+	  /* Popup Modal */
+.popup-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+.popup{
+  background:#0f172a;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:16px;
+  padding:22px 24px;
+  max-width:420px;
+  width:90%;
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
+  text-align:center;
+}
+
+.popup.success{ border-color:rgba(34,197,94,.5); }
+.popup.error{ border-color:rgba(239,68,68,.5); }
+
+.popup h3{
+  margin:0 0 8px;
+  font-size:18px;
+  font-weight:900;
+}
+
+.popup p{
+  margin:0;
+  font-size:14px;
+  color:#cbd5e1;
+}
+
+.popup button{
+  margin-top:16px;
+  padding:10px 16px;
+  border-radius:10px;
+  border:none;
+  background:#f97316;
+  font-weight:900;
+  cursor:pointer;
+}
+
   </style>
 </head>
 
@@ -852,16 +900,15 @@
 				  
 				  <div style="margin-top:10px;">
   <button
-    type="button"
-    class="btn"
-    id="btnSendQuote"
-    style="width:100%;"
-  >
-    Create Job
-  </button>
-</div>
+  type="button"
+  class="btn"
+  id="btnCreateJob"
+  style="width:100%;"
+>
+  Create Job
+</button>
 
-				  <button
+<button
   type="button"
   class="btn primary"
   id="btnSendQuote"
@@ -869,6 +916,7 @@
 >
   Send Quote
 </button>
+
 
 
 				
@@ -890,7 +938,32 @@
 
 <script>
 (function(){
+	const WEBHOOK_SEND_QUOTE =
+  "https://hook.us1.make.com/im9hto4x23ipv9mhbz1xncfyoducgg1o";
+
+const WEBHOOK_CREATE_JOB =
+  "https://hook.us1.make.com/swiqj9f9hkyk6yk86lbj6we79t47f2em";
+
   const $ = (id) => document.getElementById(id);
+	function showPopup(type, message){
+  const overlay = document.createElement("div");
+  overlay.className = "popup-overlay";
+
+  overlay.innerHTML = `
+    <div class="popup ${type}">
+      <h3>${type === "success" ? "Success" : "Error"}</h3>
+      <p>${message}</p>
+      <button>OK</button>
+    </div>
+  `;
+
+  overlay.querySelector("button").addEventListener("click", () => {
+    overlay.remove();
+  });
+
+  document.body.appendChild(overlay);
+}
+
 
 // ----- ISSA SCOPE PRESETS (AUTO-CHECKLIST) -----
 // This function automatically selects the new checklist items when Deep Clean is chosen
@@ -1138,18 +1211,6 @@ const jobNotes = $("jobNotes").value.trim();
 
     const laborRate = clamp(num($("laborRate").value, 0), 0, 500);
 
-const hourOverrideEnabled = $("enableHourOverride").checked;
-
-const minHoursOverride =
-  hourOverrideEnabled && $("minHoursOverride").value !== ""
-    ? num($("minHoursOverride").value, 0)
-    : null;
-
-const maxHoursOverride =
-  hourOverrideEnabled && $("maxHoursOverride").value !== ""
-    ? num($("maxHoursOverride").value, 0)
-    : null;
-
 	  
 	  const manualPriceInput = $("manualPrice").value;
 	  const manualHoursInput = $("manualHours").value;
@@ -1302,15 +1363,7 @@ let totalLaborHours =
 
 	  if (manualHours !== null) totalLaborHours = manualHours;
 
-// ----- HOUR RANGE OVERRIDE (TOGGLE CONTROLLED) -----
-if (hourOverrideEnabled) {
-  if (minHoursOverride !== null && totalLaborHours < minHoursOverride) {
-    totalLaborHours = minHoursOverride;
-  }
-  if (maxHoursOverride !== null && totalLaborHours > maxHoursOverride) {
-    totalLaborHours = maxHoursOverride;
-  }
-}
+
 
 	  
 // Internal tracking
@@ -1386,7 +1439,8 @@ rawPrice += addonTotal;
     $("outDetailAdders").textContent = fmtHours(detailAdders);
     $("outAddonHours").textContent = fmtHours(addonLaborHours);
 
-    $("outTotalLabor").textContent = fmtHours(totalLaborHours) + (manualHours !== null ? " (manual override)" : (hourOverrideEnabled ? " (range applied)" : ""));
+    $("outTotalLabor").textContent = fmtHours(totalLaborHours) + (manualHours !== null ? " (manual override)" : "");
+
 
     $("outDuration").textContent = `${fmtHours(durationHours)} hrs (with ${cleaners} cleaner${cleaners>1?"s":""})`;
     $("outPrice").textContent = money(rawPrice);
@@ -1477,10 +1531,7 @@ moveFurniture, intWindows, customAdder,
         multipliers: { soilMult, serviceMult, floorMult }
       },
      outputs: {
-		 hourOverrideEnabled,
 		 manualHours,
-minHoursOverride,
-maxHoursOverride,
       baseHours,
       adjustedHours,
       fixedAdders,
@@ -1577,9 +1628,7 @@ priceFinal: rawPrice
     "addonWindows","addonBlinds","addonCabinets","addonOven",
     "addonFridge","addonDishes","addonLaundry","addonPets","addonKids",
     "moveFurniture","intWindows","customAdder",
-    "laborRate","margin", "manualPrice", "enableHourOverride",
-"minHoursOverride",
-"maxHoursOverride", "manualHours",
+    "laborRate","margin", "manualPrice", "manualHours",
 
 
     
@@ -1641,41 +1690,26 @@ $("btnCopy").addEventListener("click", async () => {
   }
 });
 
-// SEND QUOTE BUTTON
+
+// SEND QUOTE BUTTON (QUOTE ONLY — NO JOB)
 $("btnSendQuote").addEventListener("click", async () => {
   const calc = compute();
 
-  // Guardrails
+  // Guardrail
   if (!calc.inputs.customer.email && !calc.inputs.customer.phone) {
-    alert("Email or phone is required to send a quote.");
-    return;
-  }
-
-  const bookingDate = $("bookingDate").value;
-  const bookingTime = $("bookingTime").value;
-  const bookingTimezone = $("bookingTimezone").value;
-
-  if (!bookingDate || !bookingTime || !bookingTimezone) {
-    alert("Please select booking date, time, and time zone.");
+    showPopup("error", "Email or phone is required to send a quote.");
     return;
   }
 
   const payload = {
-    event: "create_job_and_assignment",
+    event: "send_quote",
     source: "residential_calculator",
     sent_at: new Date().toISOString(),
 
     customer: calc.inputs.customer,
 
-    booking: {
-      date: bookingDate,
-      time: bookingTime,
-      timezone: bookingTimezone
-    },
-
     quote: {
-  price: calc.outputs.priceFinal,
-
+      price: calc.outputs.priceFinal,
       labor_hours: calc.outputs.totalLaborHours,
       duration_hours: calc.outputs.durationHours,
       service_type: calc.inputs.serviceType,
@@ -1687,26 +1721,23 @@ $("btnSendQuote").addEventListener("click", async () => {
 
   try {
     const res = await fetch(
-  "https://hook.us1.make.com/im9hto4x23ipv9mhbz1xncfyoducgg1o",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  }
-);
+      WEBHOOK_SEND_QUOTE,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }
+    );
 
-if (!res.ok) throw new Error("Webhook failed");
+    if (!res.ok) throw new Error("Webhook failed");
 
-const data = await res.json();
-
-alert("Quote sent successfully.");
-
-
+    showPopup("success", "Quote sent successfully.");
   } catch (err) {
     console.error(err);
-    alert("Failed to send quote. Check Make.com logs.");
+    showPopup("error", "Failed to send quote. Check Make.com logs.");
   }
 });
+
 	
 // CREATE LEAD BUTTON
 $("btnCreateLead").addEventListener("click", async () => {
@@ -1769,6 +1800,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
