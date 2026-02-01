@@ -965,6 +965,61 @@ const WEBHOOK_CREATE_JOB =
   document.body.appendChild(overlay);
 }
 
+// CREATE JOB BUTTON (JOB ≠ LEAD)
+$("btnCreateJob").addEventListener("click", async () => {
+  const calc = compute();
+
+  // Guardrails
+  if (!calc.inputs.customer.first_name || !calc.inputs.customer.phone) {
+    showPopup("error", "Customer first name and phone are required to create a job.");
+    return;
+  }
+
+  if (!$("bookingDate").value || !$("bookingTime").value || !$("bookingTimezone").value) {
+    showPopup("error", "Booking date, time, and time zone are required to create a job.");
+    return;
+  }
+
+  const payload = {
+    event: "create_job",
+    source: "residential_calculator",
+    created_at: new Date().toISOString(),
+
+    customer: calc.inputs.customer,
+
+    booking: {
+      date: $("bookingDate").value,
+      time: $("bookingTime").value,
+      timezone: $("bookingTimezone").value
+    },
+
+    quote: {
+      price: calc.outputs.priceFinal,
+      labor_hours: calc.outputs.totalLaborHours,
+      duration_hours: calc.outputs.durationHours,
+      service_type: calc.inputs.serviceType,
+      sqft: calc.inputs.sqft
+    },
+
+    calculator_payload: calc
+  };
+
+  try {
+    const res = await fetch(WEBHOOK_CREATE_JOB, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Create job webhook failed");
+
+    showPopup("success", "Job created successfully.");
+  } catch (err) {
+    console.error(err);
+    showPopup("error", "Failed to create job. Check Make.com logs.");
+  }
+});
+	
 
 // ----- ISSA SCOPE PRESETS (AUTO-CHECKLIST) -----
 // This function automatically selects the new checklist items when Deep Clean is chosen
@@ -1804,6 +1859,7 @@ $("btnCreateLead").addEventListener("click", async () => {
 </body>
 
 </html>
+
 
 
 
